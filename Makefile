@@ -57,7 +57,8 @@ ASCII_ENGINE_OBJS := \
 	frame.o \
 	menu.o \
 	text_box.o \
-	widget.o
+	widget.o \
+	label.o
 ASCII_ENGINE_OBJS := $(addprefix $(BLD_DIR)/ascii_engine/, $(ASCII_ENGINE_OBJS))
 
 ASCII_ENGINE_HEADERS := \
