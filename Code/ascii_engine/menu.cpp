@@ -1,6 +1,8 @@
 #include "menu.h"
 #include "widget_types.h"
 
+#include <sstream>
+
 menu::menu(frame* parent, std::string special_operation) : widget(parent, special_operation)
 {
 	set_widget_type(MENU);
@@ -37,8 +39,54 @@ bool menu::item_exists(std::string item)
 	return exists;
 }
 
+void menu::set_layout(layout type)
+{
+   switch ( type )
+   {
+      default:
+      case layout::vertical:
+      {
+         this->set_alignment("center");
+         _curser = '*';
+         horizontal = false;
+         set_controls(ascii_io::enter, ascii_io::up, ascii_io::down, ascii_io::q);
+         break;
+      }
+
+      case layout::horizontal:
+      {
+         _curser = '>';
+         horizontal = true;
+         set_controls(ascii_io::enter, ascii_io::left, ascii_io::right, ascii_io::q);
+         break;
+      }
+   }
+}
+
+// TODO: figure out what to do if terminal is not wide enough for all options
 std::string menu::build_output()
 {
+   if ( horizontal )
+   {
+      std::stringstream output{};
+
+      for ( size_t i = 0; i < menu_items.size(); ++i )
+      {
+         if ( i == curser_row )
+         {
+            output << "   " << _curser << " ";
+         }
+         else
+         {
+            output << "     ";
+         }
+      
+         output << menu_items[i];
+      }
+
+      return output.str();
+   }
+
 	std::string output = "";
 	for (unsigned int i = 0; i < menu_items.size(); i++)
 	{
