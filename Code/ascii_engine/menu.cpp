@@ -46,8 +46,8 @@ void menu::set_layout(layout type)
       default:
       case layout::vertical:
       {
-         this->set_alignment("center");
-         _curser = '*';
+         set_alignment("center");
+         set_curser('*');
          horizontal = false;
          set_controls(ascii_io::enter, ascii_io::up, ascii_io::down, ascii_io::q);
          break;
@@ -55,7 +55,7 @@ void menu::set_layout(layout type)
 
       case layout::horizontal:
       {
-         _curser = '>';
+         set_curser('>');
          horizontal = true;
          set_controls(ascii_io::enter, ascii_io::left, ascii_io::right, ascii_io::q);
          break;
