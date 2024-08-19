@@ -12,7 +12,8 @@ TREE_DIRS := \
 	ascii_engine \
 	headers/ascii_engine \
 	test_ascii_engine \
-	board_config_field_titles
+	board_config_field_titles \
+	example_application
 TREE_DIRS := $(addprefix $(BLD_DIR)/, $(TREE_DIRS))
 
 # Swap the debug definitions for non-debug builds
@@ -24,23 +25,31 @@ CXXFLAGS := -Wall -O2 $(DEBUG) -Iexternal_libraries -MMD
 
 TEST_ASCII_ENGINE := test_ascii_engine.out
 
+EXAMPLE_APP := example_application.out
+
 EXECUTABLES := \
 	build_board_config.out \
 	validate_board_config.out \
+	$(EXAMPLE_APP) \
 	$(TEST_ASCII_ENGINE)
 EXECUTABLES := $(addprefix $(BLD_DIR)/, $(EXECUTABLES))
 
-.PHONY: all clean engine test test-headless
+.PHONY: all clean engine test test-headless example run-example
 
 all: $(EXECUTABLES) engine
 
 engine: $(ASCII_ENGINE_HEADERS) $(addprefix $(BLD_DIR)/, $(ASCII_ENGINE_LIBRARY))
+
+example: $(BLD_DIR)/$(EXAMPLE_APP)
 
 test: $(BLD_DIR)/$(TEST_ASCII_ENGINE)
 	env LD_LIBRARY_PATH="./$(BLD_DIR)" $<
 
 test-headless: $(BLD_DIR)/$(TEST_ASCII_ENGINE)
 	env LD_LIBRARY_PATH="./$(BLD_DIR)" $< --gtest_filter=-ascii_io.*
+
+run-example: $(BLD_DIR)/$(EXAMPLE_APP)
+	env LD_LIBRAR_PATH="./$(BLD_DIR)" $<
 
 clean:
 	-rm -rf $(BLD_DIR)
@@ -173,6 +182,21 @@ $(BLD_DIR)/validate_board_config/%.o: $(SRC_DIR)/validate_board_config/%.cpp | $
 $(BLD_DIR)/validate_board_config.out: $(VALIDATE_BOARD_CONFIG_OBJS) $(FILE_MANAGER_OBJS) $(BOARD_CONFIG_FIELD_PARSER_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(VALIDATE_BOARD_CONFIG_OBJS) $(FILE_MANAGER_OBJS) $(BOARD_CONFIG_FIELD_PARSER_OBJS)
 ### End validate board config
+
+
+### Example Application
+EXAMPLE_APPLICATION_OBJS := \
+	main.o
+EXAMPLE_APPLICATION_OBJS := $(addprefix $(BLD_DIR)/example_application/, $(EXAMPLE_APPLICATION_OBJS))
+ALL_OBJS += $(EXAMPLE_APPLICATION_OBJS)
+
+$(BLD_DIR)/example_application/%.o: $(SRC_DIR)/example_application/%.cpp $(ASCII_ENGINE_HEADERS) | $(BLD_DIR)/example_application
+	$(CXX) $(CXXFLAGS) $(ASCII_INCLUDE) -c $< -o $@
+
+$(BLD_DIR)/$(EXAMPLE_APP): $(EXAMPLE_APPLICATION_OBJS) $(BLD_DIR)/$(ASCII_ENGINE_LIBRARY)
+	$(CXX) $(CXXFLAGS) -o $@ $(EXAMPLE_APPLICATION_OBJS)
+
+### End Example Application
 
 # gcc option -MMD makes it output additional files that end with .d (as opposed to .o)
 # which is a makefile with the user header files that it includes.
